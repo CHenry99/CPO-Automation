@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\CPO 40_H9240520F0025_PEO-SR RIPS - FE.docx" />
-    <None Remove="Resources\CPO H9240520F0023 Bilateral.docx" />
-    <None Remove="Resources\Testing Output.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <COMReference Include="Microsoft.Office.Excel.dll">
       <Guid>00020813-0000-0000-c000-000000000046</Guid>
       <VersionMajor>1</VersionMajor>
@@ -38,12 +32,6 @@
       <Lcid>0</Lcid>
       <Isolated>false</Isolated>
     </COMReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\CPO 40_H9240520F0025_PEO-SR RIPS - FE.docx" />
-    <EmbeddedResource Include="Resources\CPO H9240520F0023 Bilateral.docx" />
-    <EmbeddedResource Include="Resources\Testing Output.txt" />
   </ItemGroup>
 
   <ItemGroup>

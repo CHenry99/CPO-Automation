@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Excel;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Enumeration;
@@ -21,7 +22,7 @@ namespace Basic_Practice
             // Strings to Hold Search Values
             string CPOBudget = "";
             string PEO = "";
-            string date = "";
+            string[] date = new string[2] { "", "" };
             string[] SOCOMPM = new string[3] {"","",""};
             string[] SDWXPM = new string[3] {"","",""};
             string[] SOCOMTPOC = new string[3] {"","",""};
@@ -53,6 +54,9 @@ namespace Basic_Practice
                 {
                     Console.WriteLine("Enter Full Path: ");
                     CPOFile = Console.ReadLine();
+
+                    CPOFile = RemoveQuotations(CPOFile);
+                    Console.WriteLine("{0}", CPOFile);
                 }
                 else
                 {
@@ -132,6 +136,8 @@ namespace Basic_Practice
             else
             {
                 Console.WriteLine("Cannot Access\n");
+
+                return;
             }
 
             // Output Values
@@ -174,21 +180,23 @@ namespace Basic_Practice
             // Add header values to cells
 
             ws.Cells[1, 1] = "Budget";
-            ws.Cells[2, 1] = "Period of Performance";
-            ws.Cells[3, 1] = "PEO";
-            ws.Cells[4, 1] = "USSOCOM AA PM";
-            ws.Cells[5, 1] = "SWX/DWX PM";
-            ws.Cells[6, 1] = "USSOCOM TPOC";
+            ws.Cells[2, 1] = "Period of Performance - Start";
+            ws.Cells[3, 1] = "Period of Performance - End";
+            ws.Cells[4, 1] = "PEO";
+            ws.Cells[5, 1] = "USSOCOM AA PM";
+            ws.Cells[6, 1] = "SWX/DWX PM";
+            ws.Cells[7, 1] = "USSOCOM TPOC";
 
             // Add values to cells
             ws.Cells[1, 2] = CPOBudget;
-            ws.Cells[2, 2] = date;
-            ws.Cells[3, 2] = PEO;
-            ws.Cells[4, 2] = SOCOMPM[0]; ws.Cells[4, 3] = SOCOMPM[1]; ws.Cells[4, 4] = SOCOMPM[2];
+            ws.Cells[2, 2] = date[0];
+            ws.Cells[3, 2] = date[1];
+            ws.Cells[4, 2] = PEO;
+            ws.Cells[5, 2] = SOCOMPM[0]; ws.Cells[5, 3] = SOCOMPM[1]; ws.Cells[5, 4] = SOCOMPM[2];
 
-            ws.Cells[5, 2] = SDWXPM[0]; ws.Cells[5, 3] = SDWXPM[1]; ws.Cells[5, 4] = SDWXPM[2];
+            ws.Cells[6, 2] = SDWXPM[0]; ws.Cells[6, 3] = SDWXPM[1]; ws.Cells[6, 4] = SDWXPM[2];
 
-            ws.Cells[6, 2] = SOCOMTPOC[0]; ws.Cells[6, 3] = SOCOMTPOC[1]; ws.Cells[6, 4] = SOCOMTPOC[2];
+            ws.Cells[7, 2] = SOCOMTPOC[0]; ws.Cells[7, 3] = SOCOMTPOC[1]; ws.Cells[7, 4] = SOCOMTPOC[2];
 
             // Save the excel workbook
             // Enter Name 
@@ -333,22 +341,68 @@ namespace Basic_Practice
             return false;
         }
 
-        // Find CPO Dates - Start & End
+        // Find Period of Performance - Start & End
         /* 
-         *  NOTE - THIS IS HARD CODED BY THE TABLE, WILL NEED TO BE CHANGED.
+         *  NOTE - THIS IS HARD CODED BY THE EXPECTED TABLE - MAY NOT GIVE ACCURATE RESULTS
          */
-        static bool GetCPODates(int currPar, ref Word.Document doc, ref string date)
+        static bool GetCPODates(int currPar, ref Word.Document doc, ref string[] date)
         {
-            date = doc.Paragraphs[currPar].Range.Text;
+            string tempDate = doc.Paragraphs[currPar].Range.Text;
             
-            if(date.Contains("Performance Period") || date.Contains("PERFORMANCE PERIOD") )
+            if(tempDate.Contains("Performance Period") || tempDate.Contains("PERFORMANCE PERIOD") )
             {
-                date = doc.Paragraphs[currPar + 6].Range.Text;            
+                // Gets the whole line
+                tempDate = doc.Paragraphs[currPar + 6].Range.Text;
+                Console.WriteLine("{0}", tempDate);
+
+                // Splits line through the middle for start/end date separation
+                date[0] = tempDate.Substring(0, tempDate.Length / 2);
+                date[0] = RemoveDash(date[0]);
+                Console.WriteLine("{0}", date[0]);
+                Console.WriteLine("{0}", tempDate);
+                Console.WriteLine("{0}", tempDate.Length);
+
+                date[1] = tempDate.Substring(tempDate.Length / 2 + 1, tempDate.Length - 5);
+
+                Console.WriteLine("{0}", date[1]);
 
                 return true;
             }
 
             return false;
+        }
+
+        static string RemoveQuotations(string currString)
+        {
+            if (currString[0] == '"')
+            {
+                currString = currString.Substring(1, currString.Length - 2);
+            }
+
+            return currString;
+        }
+
+        static string RemoveDash(string currString)
+        {
+            // Goal: Remove the dash line from the date
+            // Obstacle: VS cannot recognize the double dash line from a word document
+            // Solution: We expect a DIGIT as the last character, remove the last digit while it does not equal a digit or space
+            
+            while(currString[currString.Length - 1] != '0' &&
+                  currString[currString.Length - 1] != '1' &&
+                  currString[currString.Length - 1] != '2' &&
+                  currString[currString.Length - 1] != '3' &&
+                  currString[currString.Length - 1] != '4' &&
+                  currString[currString.Length - 1] != '5' &&
+                  currString[currString.Length - 1] != '6' &&
+                  currString[currString.Length - 1] != '7' &&
+                  currString[currString.Length - 1] != '8' &&
+                  currString[currString.Length - 1] != '9' )
+            {
+                currString = currString.Substring(0, currString.Length - 2);
+            }
+
+            return currString;
         }
     }
 
