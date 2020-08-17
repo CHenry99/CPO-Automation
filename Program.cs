@@ -35,8 +35,7 @@ namespace Basic_Practice
             bool foundSDWXPM = false;
             bool foundSOCOMTPOC = false;
 
-            // Practice Getting Full Path
-
+            // Menu & Get file from user
             do
             {
                 Console.WriteLine("1 -- Enter File Name (Must place file in the netcore3.1 Folder of the Application)");
@@ -56,7 +55,6 @@ namespace Basic_Practice
                     CPOFile = Console.ReadLine();
 
                     CPOFile = RemoveQuotations(CPOFile);
-                    Console.WriteLine("{0}", CPOFile);
                 }
                 else
                 {
@@ -151,7 +149,8 @@ namespace Basic_Practice
             }
             if(foundPeriodPerformance)
             {
-                Console.WriteLine("Period of Performance: {0}", date);
+                Console.WriteLine("Period of Performance - Start: {0}", date[0]);
+                Console.WriteLine("Period of Performance - End: {0}", date[1]);
             }
             if(foundSDWXPM)
             {
@@ -206,8 +205,7 @@ namespace Basic_Practice
 
             wb.SaveAs(CPOFile, Excel.XlFileFormat.xlWorkbookNormal);
 
-            Console.WriteLine("File Saved as: ");
-            Console.WriteLine("{0}", Path.GetFullPath(CPOFile));
+            Console.WriteLine("File Saved Saved in Documents Folder as {0}.xls", CPOFile);
 
             //Close the Excel File
             wb.Close();
@@ -233,13 +231,11 @@ namespace Basic_Practice
          */
         static bool GetPOC(int currPar, ref Word.Document doc, string position, ref string[] PMDetails)
         {
-            string temp = doc.Paragraphs[currPar].Range.Text;
-
             int distanceToEnd = doc.Paragraphs.Count - currPar;
 
             // Previous Solution
               
-            if(temp.Contains("POINTS OF CONTACT"))
+            if(doc.Paragraphs[currPar].Range.Text.Contains("POINTS OF CONTACT"))
             {
                 for(int i = 0; i < distanceToEnd; i++)
                 {
@@ -254,7 +250,6 @@ namespace Basic_Practice
                     }
                 }
                
-                
             } 
 
             return false;
@@ -262,13 +257,11 @@ namespace Basic_Practice
 
         static bool GetSWXPM(int currPar, ref Word.Document doc, ref string[] PMDetails)
         {
-            string temp = doc.Paragraphs[currPar].Range.Text;
-
             int distanceToEnd = doc.Paragraphs.Count - currPar;
 
             // Previous Solution
 
-            if (temp.Contains("POINTS OF CONTACT"))
+            if (doc.Paragraphs[currPar].Range.Text.Contains("POINTS OF CONTACT"))
             {
                 for (int i = 0; i < distanceToEnd; i++)
                 {
@@ -295,8 +288,7 @@ namespace Basic_Practice
              */
             static bool GetCPOValue(int currPar, ref Word.Document doc, ref string value)
         {
-            string temp = doc.Paragraphs[currPar].Range.Text.Trim();
-            if (temp.Contains("Total Value of this Action"))
+            if (doc.Paragraphs[currPar].Range.Text.Trim().Contains("Total Value of this Action"))
             {
                 value = doc.Paragraphs[currPar + 1].Range.Text;
                 return true;
@@ -353,18 +345,19 @@ namespace Basic_Practice
             {
                 // Gets the whole line
                 tempDate = doc.Paragraphs[currPar + 6].Range.Text;
-                Console.WriteLine("{0}", tempDate);
+                tempDate = RemoveTrailingChar(tempDate);
+
+                Console.WriteLine("{0}", tempDate[tempDate.Length - 1]);
 
                 // Splits line through the middle for start/end date separation
+                // date[0] holds start date
+                // date[1] holds end date
                 date[0] = tempDate.Substring(0, tempDate.Length / 2);
-                date[0] = RemoveDash(date[0]);
-                Console.WriteLine("{0}", date[0]);
-                Console.WriteLine("{0}", tempDate);
-                Console.WriteLine("{0}", tempDate.Length);
+                date[0] = RemoveTrailingChar(date[0]);
 
-                date[1] = tempDate.Substring(tempDate.Length / 2 + 1, tempDate.Length - 5);
 
-                Console.WriteLine("{0}", date[1]);
+                date[1] = tempDate.Substring(tempDate.Length / 2 + 1);
+                date[1] = RemoveLeadingChar(date[1]);
 
                 return true;
             }
@@ -382,11 +375,12 @@ namespace Basic_Practice
             return currString;
         }
 
-        static string RemoveDash(string currString)
+        /* Removes non digit characters from end of string
+         * - Used to remove the dash from CPO Start Date
+         * - Used to remove excess new line character from Period of Performance line
+         */
+        static string RemoveTrailingChar(string currString)
         {
-            // Goal: Remove the dash line from the date
-            // Obstacle: VS cannot recognize the double dash line from a word document
-            // Solution: We expect a DIGIT as the last character, remove the last digit while it does not equal a digit or space
             
             while(currString[currString.Length - 1] != '0' &&
                   currString[currString.Length - 1] != '1' &&
@@ -400,6 +394,26 @@ namespace Basic_Practice
                   currString[currString.Length - 1] != '9' )
             {
                 currString = currString.Substring(0, currString.Length - 2);
+            }
+
+            return currString;
+        }
+
+        static string RemoveLeadingChar(string currString)
+        {
+
+            while (currString[0] != '0' &&
+                  currString[0] != '1' &&
+                  currString[0] != '2' &&
+                  currString[0] != '3' &&
+                  currString[0] != '4' &&
+                  currString[0] != '5' &&
+                  currString[0] != '6' &&
+                  currString[0] != '7' &&
+                  currString[0] != '8' &&
+                  currString[0] != '9')
+            {
+                currString = currString.Substring(1);
             }
 
             return currString;
