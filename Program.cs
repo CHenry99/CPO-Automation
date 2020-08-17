@@ -74,11 +74,6 @@ namespace Basic_Practice
             Excel.Workbook wb = ExApp.Workbooks.Add();
             Excel.Worksheet ws = (Excel.Worksheet)wb.Sheets.Add();
 
-
-
-            // CPOFile = @"C:\Users\Carolyn Henry\Documents\SOFWERX\CPO Baseline Practice\Basic Practice\Resources\CPO 40_H9240520F0025_PEO-SR RIPS - FE.docx";
-            // Console.WriteLine(CPOFile);
-
             
             // If the file exists, the program can FIND the file
             if (System.IO.File.Exists(CPOFile))
@@ -96,16 +91,14 @@ namespace Basic_Practice
                 for (int i = 0; i < doc.Paragraphs.Count; i++)
                     {
 
-                    // sw.WriteLine("{0}", doc.Paragraphs[i + 1].Range.Text);
-
                         if(!foundBudget)
                         {
-                             foundBudget = GetCPOValue(i + 1, ref doc, ref CPOBudget);
+                            foundBudget = GetCPOValue(i + 1, ref doc, ref CPOBudget);                            
                         }
                     
                         if(!foundPEO)
                         {
-                            foundPEO = GetPEO(i + 1, ref doc, ref PEO);
+                            foundPEO = GetPEO(i + 1, ref doc, ref PEO);                            
                         }
 
                         if(!foundPeriodPerformance) 
@@ -115,17 +108,17 @@ namespace Basic_Practice
                         
                         if (!foundSOCOMPM)
                         {
-                            foundSOCOMPM = GetPOC(i + 1, ref doc, "USSOCOM AA PM", ref SOCOMPM);
+                            foundSOCOMPM = GetPOC(i + 1, ref doc, "USSOCOM AA PM", ref SOCOMPM);                            
                         }
 
                         if(!foundSDWXPM)
                         {
-                            foundSDWXPM = GetSWXPM(i + 1, ref doc, ref SDWXPM);
+                            foundSDWXPM = GetSWXPM(i + 1, ref doc, ref SDWXPM);                            
                         }
 
                         if(!foundSOCOMTPOC)
                         {
-                            foundSOCOMTPOC = GetPOC(i + 1, ref doc, "USSOCOM TPOC", ref SOCOMTPOC);
+                            foundSOCOMTPOC = GetPOC(i + 1, ref doc, "USSOCOM TPOC", ref SOCOMTPOC);                            
                         }
                         
                 }
@@ -141,10 +134,12 @@ namespace Basic_Practice
             // Output Values
             if(foundBudget)
             {
+                CPOBudget = RemoveTrailingNewline(CPOBudget);
                 Console.WriteLine("Budget: {0}", CPOBudget);
             }
             if(foundPEO)
             {
+                PEO = RemoveTrailingNewline(PEO);
                 Console.WriteLine("PEO: {0}", PEO);
             }
             if(foundPeriodPerformance)
@@ -154,14 +149,27 @@ namespace Basic_Practice
             }
             if(foundSDWXPM)
             {
+                for (int i = 0; i < 3; i++)
+                {
+                    SDWXPM[i] = RemoveTrailingNewline(SDWXPM[i]);
+                }
                 Console.WriteLine("DWX/SWX PM: {0}", SDWXPM[0]);
             }
             if(foundSOCOMPM)
             {
+                for (int i = 0; i < 3; i++)
+                {
+                    SOCOMPM[i] = RemoveTrailingNewline(SOCOMPM[i]);
+                }
                 Console.WriteLine("USSOCOM AA PM: {0}", SOCOMPM[0]);
+                
             }
             if(foundSOCOMTPOC)
             {
+                for (int i = 0; i < 3; i++)
+                {
+                    SOCOMTPOC[i] = RemoveTrailingNewline(SOCOMTPOC[i]);
+                }
                 Console.WriteLine("USSOCOM TPOC PM: {0}", SOCOMTPOC[0]);
             }
 
@@ -392,6 +400,17 @@ namespace Basic_Practice
                   currString[currString.Length - 1] != '7' &&
                   currString[currString.Length - 1] != '8' &&
                   currString[currString.Length - 1] != '9' )
+            {
+                currString = currString.Substring(0, currString.Length - 2);
+            }
+
+            return currString;
+        }
+
+        static string RemoveTrailingNewline(string currString)
+        {
+
+            while(currString[currString.Length - 1] == '\n')
             {
                 currString = currString.Substring(0, currString.Length - 2);
             }
